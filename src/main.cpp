@@ -1,10 +1,13 @@
 #include <SDL2/SDL.h>
+#include <SDL2_image/SDL_image.h>
 #include <stdio.h>
+#include <string>
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
 bool init();
+SDL_Surface *loadSurface();
 bool loadMedia();
 void close();
 
@@ -24,17 +27,40 @@ bool init() {
     return false;
   }
 
+  int imgFlags = IMG_INIT_PNG;
+  if (!(IMG_Init(imgFlags) & imgFlags)) {
+    printf("Image flags failed to initialise: SDL_image Error: %s\n", IMG_GetError());
+    return false;
+  }
+
   gScreenSurface = SDL_GetWindowSurface(gWindow);
   return true;
 }
 
+SDL_Surface *loadSurface(std::string path) {
+  SDL_Surface *loadedSurface = IMG_Load(path.c_str());
+  if (loadedSurface == NULL) {
+    printf("Failed to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
+    return NULL;
+  }
+
+  SDL_Surface *optimisedImage = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);
+  if (optimisedImage == NULL) {
+    printf("Unable to optimise image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+    SDL_FreeSurface(loadedSurface);
+  }
+
+  return optimisedImage;
+}
+
 bool loadMedia() {
+  gHelloWorld = loadSurface("assets/hi.png");
   return true;
 }
 
 void close() {
-  SDL_FreeSurface(gScreenSurface);
-  gScreenSurface = NULL;
+  SDL_FreeSurface(gHelloWorld);
+  gHelloWorld = NULL;
 
   SDL_DestroyWindow(gWindow);
   gWindow = NULL;
@@ -53,6 +79,7 @@ int main(int argc, char *args[]) {
     return 0;
   }
 
+  SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
   SDL_UpdateWindowSurface(gWindow);
   SDL_Delay(2000);
 
