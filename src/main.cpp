@@ -6,6 +6,15 @@
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
+enum KeyPressSurfaces {
+  KEY_PRESS_SURFACE_DEFAULT,
+  KEY_PRESS_SURFACE_UP,
+  KEY_PRESS_SURFACE_DOWN,
+  KEY_PRESS_SURFACE_LEFT,
+  KEY_PRESS_SURFACE_RIGHT,
+  KEY_PRESS_SURFACE_TOTAL
+};
+
 bool init();
 SDL_Surface *loadSurface();
 bool loadMedia();
@@ -14,7 +23,8 @@ void close();
 
 SDL_Window *gWindow = NULL;
 SDL_Surface *gScreenSurface = NULL;
-SDL_Surface *gHelloWorld = NULL;
+SDL_Surface *gKeyPressSurfaces[KEY_PRESS_SURFACE_TOTAL];
+SDL_Surface *gCurrentSurface = NULL;
 
 bool init() {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -55,29 +65,97 @@ SDL_Surface *loadSurface(std::string path) {
 }
 
 bool loadMedia() {
-  gHelloWorld = loadSurface("assets/hi.png");
+  gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT] = loadSurface("assets/default.png");
+  if (gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT] == NULL) {
+    printf("Failed to load default image!\n");
+    return false;
+  }
+
+  gKeyPressSurfaces[KEY_PRESS_SURFACE_UP] = loadSurface("assets/up.png");
+  if (gKeyPressSurfaces[KEY_PRESS_SURFACE_UP] == NULL) {
+    printf("Failed to load up image!\n");
+    return false;
+  }
+
+  gKeyPressSurfaces[KEY_PRESS_SURFACE_DOWN] = loadSurface("assets/down.png");
+  if (gKeyPressSurfaces[KEY_PRESS_SURFACE_DOWN] == NULL) {
+    printf("Failed to load down image!\n");
+    return false;
+  }
+
+  gKeyPressSurfaces[KEY_PRESS_SURFACE_LEFT] = loadSurface("assets/left.png");
+  if (gKeyPressSurfaces[KEY_PRESS_SURFACE_LEFT] == NULL) {
+    printf("Failed to load left image!\n");
+    return false;
+  }
+
+  gKeyPressSurfaces[KEY_PRESS_SURFACE_RIGHT] = loadSurface("assets/right.png");
+  if (gKeyPressSurfaces[KEY_PRESS_SURFACE_RIGHT] == NULL) {
+    printf("Failed to load right image!\n");
+    return false;
+  }
+
   return true;
 }
 
 void loop() {
   bool running = true;
   SDL_Event e;
+  gCurrentSurface = gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT];
 
   while (running) {
     while (SDL_PollEvent(&e) != 0) {
       if (e.type == SDL_QUIT) {
         running = false;
+      } else if (e.type == SDL_KEYDOWN) {
+        switch (e.key.keysym.sym) {
+          case SDLK_w:
+          case SDLK_UP:
+          gCurrentSurface = gKeyPressSurfaces[KEY_PRESS_SURFACE_UP];
+          break;
+
+          case SDLK_s:
+          case SDLK_DOWN:
+          gCurrentSurface = gKeyPressSurfaces[KEY_PRESS_SURFACE_DOWN];
+          break;
+
+          case SDLK_a:
+          case SDLK_LEFT:
+          gCurrentSurface = gKeyPressSurfaces[KEY_PRESS_SURFACE_LEFT];
+          break;
+
+          case SDLK_d:
+          case SDLK_RIGHT:
+          gCurrentSurface = gKeyPressSurfaces[KEY_PRESS_SURFACE_RIGHT];
+          break;
+
+          default:
+          gCurrentSurface = gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT];
+          break;
+        }
       }
     }
 
-    SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
+    SDL_BlitSurface(gCurrentSurface, NULL, gScreenSurface, NULL);
     SDL_UpdateWindowSurface(gWindow);
   }
 }
 
 void close() {
-  SDL_FreeSurface(gHelloWorld);
-  gHelloWorld = NULL;
+  SDL_FreeSurface(gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT]);
+  gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT] = NULL;
+
+  SDL_FreeSurface(gKeyPressSurfaces[KEY_PRESS_SURFACE_UP]);
+  gKeyPressSurfaces[KEY_PRESS_SURFACE_UP] = NULL;
+
+  SDL_FreeSurface(gKeyPressSurfaces[KEY_PRESS_SURFACE_DOWN]);
+  gKeyPressSurfaces[KEY_PRESS_SURFACE_DOWN] = NULL;
+
+  SDL_FreeSurface(gKeyPressSurfaces[KEY_PRESS_SURFACE_LEFT]);
+  gKeyPressSurfaces[KEY_PRESS_SURFACE_LEFT] = NULL;
+  
+  SDL_FreeSurface(gKeyPressSurfaces[KEY_PRESS_SURFACE_RIGHT]);
+  gKeyPressSurfaces[KEY_PRESS_SURFACE_RIGHT] = NULL;
 
   SDL_DestroyWindow(gWindow);
   gWindow = NULL;
