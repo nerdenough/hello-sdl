@@ -136,7 +136,13 @@ void loop() {
       }
     }
 
-    SDL_BlitSurface(gCurrentSurface, NULL, gScreenSurface, NULL);
+    SDL_Rect stretchRect;
+    stretchRect.x = 0;
+    stretchRect.y = 0;
+    stretchRect.w = SCREEN_WIDTH;
+    stretchRect.h = SCREEN_HEIGHT;
+
+    SDL_BlitScaled(gCurrentSurface, NULL, gScreenSurface, &stretchRect);
     SDL_UpdateWindowSurface(gWindow);
   }
 }
@@ -153,7 +159,7 @@ void close() {
 
   SDL_FreeSurface(gKeyPressSurfaces[KEY_PRESS_SURFACE_LEFT]);
   gKeyPressSurfaces[KEY_PRESS_SURFACE_LEFT] = NULL;
-  
+
   SDL_FreeSurface(gKeyPressSurfaces[KEY_PRESS_SURFACE_RIGHT]);
   gKeyPressSurfaces[KEY_PRESS_SURFACE_RIGHT] = NULL;
 
