@@ -9,6 +9,7 @@ const int SCREEN_HEIGHT = 480;
 bool init();
 SDL_Surface *loadSurface();
 bool loadMedia();
+void loop();
 void close();
 
 SDL_Window *gWindow = NULL;
@@ -58,6 +59,22 @@ bool loadMedia() {
   return true;
 }
 
+void loop() {
+  bool running = true;
+  SDL_Event e;
+
+  while (running) {
+    while (SDL_PollEvent(&e) != 0) {
+      if (e.type == SDL_QUIT) {
+        running = false;
+      }
+    }
+
+    SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
+    SDL_UpdateWindowSurface(gWindow);
+  }
+}
+
 void close() {
   SDL_FreeSurface(gHelloWorld);
   gHelloWorld = NULL;
@@ -79,10 +96,7 @@ int main(int argc, char *args[]) {
     return 0;
   }
 
-  SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
-  SDL_UpdateWindowSurface(gWindow);
-  SDL_Delay(2000);
-
+  loop();
   close();
   return 0;
 }
