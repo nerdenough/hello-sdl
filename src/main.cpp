@@ -88,9 +88,16 @@ void loop() {
 }
 
 void close() {
+  SDL_DestroyTexture(gTexture);
+  gTexture = NULL;
+
+  SDL_DestroyRenderer(gRenderer);
+  gRenderer = NULL;
+  
   SDL_DestroyWindow(gWindow);
   gWindow = NULL;
 
+  IMG_Quit();
   SDL_Quit();
 }
 
