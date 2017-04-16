@@ -16,7 +16,7 @@ enum KeyPressSurfaces {
 };
 
 bool init();
-SDL_Surface *loadSurface();
+SDL_Surface *loadSurface(std::string path);
 bool loadMedia();
 void loop();
 void close();
