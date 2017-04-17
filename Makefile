@@ -2,7 +2,7 @@ CC = g++
 COMPILER_FLAGS = -Wall
 LINKER_FLAGS = -framework SDL2 -framework SDL2_image
 
-all: surfaces textures geometry
+all: surfaces textures geometry viewports
 
 surfaces:
 	$(CC) src/surfaces.cpp $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bin/surfaces
@@ -12,3 +12,6 @@ textures:
 
 geometry:
 	$(CC) src/geometry.cpp $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bin/geometry
+
+viewports:
+	$(CC) src/viewports.cpp $(COMPILER_FLAGS) $(LINKER_FLAGS) -o bin/viewports
