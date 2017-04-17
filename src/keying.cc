@@ -18,7 +18,7 @@ class LTexture {
     ~LTexture();
     bool loadFromFile(std::string path);
     void free();
-    void render(int x, int y);
+    void render(int x, int y, SDL_Rect *clip = NULL);
     int getWidth();
     int getHeight();
 
@@ -30,8 +30,8 @@ class LTexture {
 
 SDL_Window *gWindow = NULL;
 SDL_Renderer *gRenderer = NULL;
-LTexture gFooTexture;
-LTexture gBackgroundTexture;
+SDL_Rect gSpriteClips[4];
+LTexture gSpriteTexture;
 
 LTexture::LTexture() {
   mTexture = NULL;
@@ -75,9 +75,15 @@ void LTexture::free() {
   }
 }
 
-void LTexture::render(int x, int y) {
+void LTexture::render(int x, int y, SDL_Rect *clip) {
   SDL_Rect renderQuad = { x, y, mWidth, mHeight };
-  SDL_RenderCopy(gRenderer, mTexture, NULL, &renderQuad);
+
+  if (clip != NULL) {
+    renderQuad.w = clip->w;
+    renderQuad.h = clip->h;
+  }
+
+  SDL_RenderCopy(gRenderer, mTexture, clip, &renderQuad);
 }
 
 int LTexture::getWidth() {
@@ -116,15 +122,30 @@ bool init() {
 }
 
 bool loadMedia() {
-  if (!gFooTexture.loadFromFile("assets/foo.png")) {
-    printf("Failed to load assets/foo.png!\n");
+  if (!gSpriteTexture.loadFromFile("assets/circles.png")) {
+    printf("Failed to load assets/circle.png!\n");
     return false;
   }
 
-  if (!gBackgroundTexture.loadFromFile("assets/background.png")) {
-    printf("Failed to load assets/background.png!\n");
-    return false;
-  }
+  gSpriteClips[0].x = 0;
+  gSpriteClips[0].y = 0;
+  gSpriteClips[0].w = 100;
+  gSpriteClips[0].h = 100;
+
+  gSpriteClips[1].x = 100;
+  gSpriteClips[1].y = 0;
+  gSpriteClips[1].w = 100;
+  gSpriteClips[1].h = 100;
+
+  gSpriteClips[2].x = 0;
+  gSpriteClips[2].y = 100;
+  gSpriteClips[2].w = 100;
+  gSpriteClips[2].h = 100;
+
+  gSpriteClips[3].x = 100;
+  gSpriteClips[3].y = 100;
+  gSpriteClips[3].w = 100;
+  gSpriteClips[3].h = 100;
 
   return true;
 }
@@ -140,19 +161,20 @@ void loop() {
       }
     }
 
-    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 0xFF);
     SDL_RenderClear(gRenderer);
 
-    gBackgroundTexture.render(0, 0);
-    gFooTexture.render(240, 190);
+    gSpriteTexture.render(0, 0, &gSpriteClips[0]);
+    gSpriteTexture.render(SCREEN_WIDTH - gSpriteClips[1].w, 0, &gSpriteClips[1]);
+    gSpriteTexture.render(0, SCREEN_HEIGHT - gSpriteClips[2].h, &gSpriteClips[2]);
+    gSpriteTexture.render(SCREEN_WIDTH - gSpriteClips[3].w, SCREEN_HEIGHT - gSpriteClips[3].h, &gSpriteClips[3]);
 
     SDL_RenderPresent(gRenderer);
   }
 }
 
 void close() {
-  gFooTexture.free();
-  gBackgroundTexture.free();
+  gSpriteTexture.free();
 
   SDL_DestroyRenderer(gRenderer);
   gRenderer = NULL;
