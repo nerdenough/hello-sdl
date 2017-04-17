@@ -18,6 +18,7 @@ class LTexture {
     ~LTexture();
     bool loadFromFile(std::string path);
     void free();
+    void setColour(Uint8 red, Uint8 green, Uint8 blue);
     void render(int x, int y, SDL_Rect *clip = NULL);
     int getWidth();
     int getHeight();
@@ -73,6 +74,10 @@ void LTexture::free() {
     mWidth = 0;
     mHeight = 0;
   }
+}
+
+void LTexture::setColour(Uint8 red, Uint8 green, Uint8 blue) {
+  SDL_SetTextureColorMod(mTexture, red, green, blue);
 }
 
 void LTexture::render(int x, int y, SDL_Rect *clip) {
@@ -153,16 +158,42 @@ bool loadMedia() {
 void loop() {
   bool running = true;
   SDL_Event e;
+  Uint8 red = 255;
+  Uint8 green = 255;
+  Uint8 blue = 255;
 
   while (running) {
     while (SDL_PollEvent(&e) != 0) {
       if (e.type == SDL_QUIT) {
         running = false;
+      } else if (e.type == SDL_KEYDOWN) {
+        switch (e.key.keysym.sym) {
+          case SDLK_q:
+            red += 32;
+            break;
+          case SDLK_w:
+            green += 32;
+            break;
+          case SDLK_e:
+            blue += 32;
+            break;
+          case SDLK_a:
+            red -= 32;
+            break;
+          case SDLK_s:
+            green -= 32;
+            break;
+          case SDLK_d:
+            blue -= 32;
+            break;
+        }
       }
     }
 
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 0xFF);
     SDL_RenderClear(gRenderer);
+
+    gSpriteTexture.setColour(red, green, blue);
 
     gSpriteTexture.render(0, 0, &gSpriteClips[0]);
     gSpriteTexture.render(SCREEN_WIDTH - gSpriteClips[1].w, 0, &gSpriteClips[1]);
