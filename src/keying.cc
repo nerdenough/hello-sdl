@@ -19,6 +19,8 @@ class LTexture {
     bool loadFromFile(std::string path);
     void free();
     void setColour(Uint8 red, Uint8 green, Uint8 blue);
+    void setBlendMode(SDL_BlendMode blending);
+    void setAlpha(Uint8 alpha);
     void render(int x, int y, SDL_Rect *clip = NULL);
     int getWidth();
     int getHeight();
@@ -80,6 +82,14 @@ void LTexture::setColour(Uint8 red, Uint8 green, Uint8 blue) {
   SDL_SetTextureColorMod(mTexture, red, green, blue);
 }
 
+void LTexture::setBlendMode(SDL_BlendMode blending) {
+  SDL_SetTextureBlendMode(mTexture, blending);
+}
+
+void LTexture::setAlpha(Uint8 alpha) {
+  SDL_SetTextureAlphaMod(mTexture, alpha);
+}
+
 void LTexture::render(int x, int y, SDL_Rect *clip) {
   SDL_Rect renderQuad = { x, y, mWidth, mHeight };
 
@@ -132,6 +142,8 @@ bool loadMedia() {
     return false;
   }
 
+  gSpriteTexture.setBlendMode(SDL_BLENDMODE_BLEND);
+
   gSpriteClips[0].x = 0;
   gSpriteClips[0].y = 0;
   gSpriteClips[0].w = 100;
@@ -161,6 +173,7 @@ void loop() {
   Uint8 red = 255;
   Uint8 green = 255;
   Uint8 blue = 255;
+  Uint8 alpha = 255;
 
   while (running) {
     while (SDL_PollEvent(&e) != 0) {
@@ -177,6 +190,9 @@ void loop() {
           case SDLK_e:
             blue += 32;
             break;
+          case SDLK_r:
+            alpha += 32;
+            break;
           case SDLK_a:
             red -= 32;
             break;
@@ -186,6 +202,9 @@ void loop() {
           case SDLK_d:
             blue -= 32;
             break;
+          case SDLK_f:
+            alpha -= 32;
+            break;
         }
       }
     }
@@ -194,6 +213,7 @@ void loop() {
     SDL_RenderClear(gRenderer);
 
     gSpriteTexture.setColour(red, green, blue);
+    gSpriteTexture.setAlpha(alpha);
 
     gSpriteTexture.render(0, 0, &gSpriteClips[0]);
     gSpriteTexture.render(SCREEN_WIDTH - gSpriteClips[1].w, 0, &gSpriteClips[1]);
