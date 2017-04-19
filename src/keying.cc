@@ -121,7 +121,7 @@ bool init() {
     return false;
   }
 
-  gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+  gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
   if (gRenderer == NULL) {
     printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
     return false;
@@ -174,6 +174,7 @@ void loop() {
   Uint8 green = 255;
   Uint8 blue = 255;
   Uint8 alpha = 255;
+  int frame = 0;
 
   while (running) {
     while (SDL_PollEvent(&e) != 0) {
@@ -215,12 +216,14 @@ void loop() {
     gSpriteTexture.setColour(red, green, blue);
     gSpriteTexture.setAlpha(alpha);
 
-    gSpriteTexture.render(0, 0, &gSpriteClips[0]);
-    gSpriteTexture.render(SCREEN_WIDTH - gSpriteClips[1].w, 0, &gSpriteClips[1]);
-    gSpriteTexture.render(0, SCREEN_HEIGHT - gSpriteClips[2].h, &gSpriteClips[2]);
-    gSpriteTexture.render(SCREEN_WIDTH - gSpriteClips[3].w, SCREEN_HEIGHT - gSpriteClips[3].h, &gSpriteClips[3]);
+    gSpriteTexture.render(SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 50, &gSpriteClips[frame / 4]);
 
     SDL_RenderPresent(gRenderer);
+
+    frame++;
+    if (frame / 4 >= 4) {
+      frame = 0;
+    }
   }
 }
 
